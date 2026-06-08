@@ -36,7 +36,17 @@ class ShortcutAdapter(
         fun bind(shortcut: ShortcutItem) {
             binding.apply {
                 tvShortcutTitle.text = shortcut.title
-                ivShortcutIcon.setImageResource(shortcut.iconResId)
+
+                shortcut.iconResName?.let { resName ->
+                    val resId = root.context.resources.getIdentifier(
+                        resName, "drawable", root.context.packageName
+                    )
+                    if (resId != 0) {
+                        ivShortcutIcon.setImageResource(resId)
+                    } else {
+                        ivShortcutIcon.setImageResource(com.idocar.launcher.R.drawable.ic_shortcut)
+                    }
+                } ?: ivShortcutIcon.setImageResource(com.idocar.launcher.R.drawable.ic_shortcut)
 
                 root.setOnClickListener {
                     onShortcutClick(shortcut)

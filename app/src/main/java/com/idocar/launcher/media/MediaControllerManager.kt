@@ -52,23 +52,29 @@ class MediaControllerManager(private val context: Context) {
     init {
         // 监听活跃的媒体会话
         val componentName = ComponentName(context, MediaBrowserService::class.java)
-        mediaSessionManager.addOnActiveSessionsChangedListener(sessionCallback, componentName)
-        
-        // 获取当前活跃的会话
-        val controllers = mediaSessionManager.getActiveSessions(componentName)
-        _availableControllers.value = controllers
-        controllers.firstOrNull()?.let { connectToController(it) }
+        try {
+            mediaSessionManager.addOnActiveSessionsChangedListener(sessionCallback, componentName)
+            val controllers = mediaSessionManager.getActiveSessions(componentName)
+            _availableControllers.value = controllers
+            controllers.firstOrNull()?.let { connectToController(it) }
+        } catch (e: SecurityException) {
+            // MEDIA_CONTENT_CONTROL 权限为系统签名权限，普通应用无法获取
+        }
     }
 
     private fun connectToController(controller: MediaController) {
-        activeController?.unregisterCallback(controllerCallback)
-        
-        val token = MediaSessionCompat.Token.fromToken(controller.sessionToken)
-        activeController = MediaControllerCompat(context, token).apply {
-            registerCallback(controllerCallback)
+        try {
+            activeController?.unregisterCallback(controllerCallback)
+
+            val token = MediaSessionCompat.Token.fromToken(controller.sessionToken)
+            activeController = MediaControllerCompat(context, token).apply {
+                registerCallback(controllerCallback)
+            }
+
+            updatePlaybackState()
+        } catch (e: Exception) {
+            // 跨进程 token 转换可能失败
         }
-        
-        updatePlaybackState()
     }
 
     private fun updatePlaybackState() {

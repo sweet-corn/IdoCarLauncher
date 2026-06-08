@@ -11,7 +11,7 @@ import com.idocar.launcher.data.ThemeItem
 
 @Database(
     entities = [AppItem::class, ShortcutItem::class, ThemeItem::class],
-    version = 1,
+    version = 2,
     exportSchema = false
 )
 @TypeConverters(Converters::class)

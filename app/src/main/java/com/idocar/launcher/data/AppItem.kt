@@ -4,6 +4,7 @@ import android.graphics.drawable.Drawable
 import android.os.Parcelable
 import androidx.room.Entity
 import androidx.room.PrimaryKey
+import kotlinx.parcelize.IgnoredOnParcel
 import kotlinx.parcelize.Parcelize
 
 /**
@@ -24,6 +25,7 @@ data class AppItem(
     val iconUri: String? = null
 ) : Parcelable {
     
+    @IgnoredOnParcel
     @Transient
     var icon: Drawable? = null
     
@@ -48,7 +50,7 @@ data class ShortcutItem(
     @PrimaryKey(autoGenerate = true)
     val id: Long = 0,
     val title: String,
-    val iconResId: Int,
+    val iconResName: String? = null,
     val actionType: ActionType,
     val targetPackage: String? = null,
     val targetActivity: String? = null,
